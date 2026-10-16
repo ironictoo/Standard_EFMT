@@ -196,7 +196,7 @@ def run_try():
     StimToolLib.mark_event(g.output, 'NA', 'NA', event_types['TASK_ONSET'], instruct_end_time, instruct_end_time - instruct_start_time, 'NA', 'NA', g.session_params['signal_parallel'], g.session_params['parallel_port_address'])
 
     g.ideal_trial_start = instruct_end_time
-    g.win.setColor([1,1,1])
+    g.win.setColor([1,1,1], colorSpace='rgb')
     g.win.flip()
     g.win.flip()
     

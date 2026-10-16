@@ -1,7 +1,11 @@
 
 
 from psychopy import event, core, visual, gui, sound, monitors, data#, microphone
-import csv, os, ctypes, ast, numpy, pyo, sys, logging
+import csv, os, ctypes, ast, numpy, sys, logging
+try:
+    import pyo
+except ImportError: #only used by commented-out microphone code
+    pyo = None
 from shutil import move
 
 PARALLEL_DELAY = 0.005 #time to wait when sending pulses to the parallel port
@@ -253,7 +257,7 @@ def run_instructions(instruct_schedule_file, g):
     fin.close()
     slides = []
     for i in lines:
-        slides.append(i.split(','))
+        slides.append([x.strip() for x in i.split(',')]) #strip spaces/newlines: HARI_instruct_scheduleP_*.csv has ' None'
     i = 0
     while i < len(slides):
         i = max(i + do_one_slide(slides[i], directory, g), 0) #do_one_slide may increment or decrement i, depending on whether session_params['right'] or session_params['left'] is pressed--don't let them go back on the first slide

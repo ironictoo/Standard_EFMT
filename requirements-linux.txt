@@ -1,0 +1,2 @@
+# Linux / current PsychoPy (see README-linux.md)
+psychopy==2026.2.4

@@ -1,10 +1,15 @@
+import sys
 from psychopy import prefs
-from pygame import pypm #need to load this before loading psychopy.sound when using pyo 
-prefs.hardware['audioLib'] = ['pysoundcard', 'pygame'] #Previously: ['pyo','pygame']
+try:
+    from pygame import pypm #need to load this before loading psychopy.sound when using pyo 
+except ImportError: #not needed on Linux / current PsychoPy (no pyo)
+    pypm = None
+prefs.hardware['audioLib'] = ['ptb', 'sounddevice', 'pysoundcard', 'pygame'] #Previously: ['pyo','pygame']
 #prefs.general['audioLib'] = [u'pygame']
-prefs.hardware['audioDriver'] = ['ASIO4ALL', 'ASIO', 'Audigy', ]
+if sys.platform == 'win32':
+    prefs.hardware['audioDriver'] = ['ASIO4ALL', 'ASIO', 'Audigy', ]
 from psychopy import core, visual, gui, data, misc, event, sound, logging#, microphone
-import time, numpy, random, datetime, sys, os, copy, csv, ast, StimToolLib, threading, pygame.pypm
+import time, numpy, random, datetime, sys, os, copy, csv, ast, StimToolLib, threading
 
 
 import Hariri.Hariri
