@@ -319,7 +319,7 @@ def do_one_slide(slide, directory, g):
     
     
     
-def read_trial_structure(schedule_file, win, msg):
+def read_trial_structure(schedule_file, win, msg, face_dir=None):
     #This function will read a .csv file and parse each line, reading images into memory as necessary
     #Each line should have three commas separating four different groups of values--but any of these might be empty
     #The values should be: TrialTypes, Stimuli, Durations, ExtraArgs
@@ -331,6 +331,12 @@ def read_trial_structure(schedule_file, win, msg):
     #ExtraArgs is provided as a place to put anything else that might be needed--anything there will be returned as strings.
     #Draw a loading message
     directory = os.path.dirname(schedule_file)
+    #face images (trial type 3) are loaded from face_dir if it is set (NimStim faces are licensed and kept out of the repo); file names match case-insensitively
+    face_files = None
+    if face_dir:
+        if not os.path.isdir(face_dir):
+            error_popup('Face image folder not found: ' + face_dir + '\nSet face_dir in Default.params.')
+        face_files = {f.upper(): os.path.join(face_dir, f) for f in os.listdir(face_dir)}
     msg.setText('Loading...')
     msg.draw() #Draw the message
     win.flip() #Refresh the window 
@@ -347,7 +353,13 @@ def read_trial_structure(schedule_file, win, msg):
         s1 = []
         for j in s:
             if i[0] == '3':
-                s1.append(visual.ImageStim(win, image=os.path.join(directory, j), size = (233,300), units='pix')) #load images into memory #HS: Edit to make the NimStim images the same size as the other stimuli
+                if face_files is None:
+                    face_path = os.path.join(directory, j)
+                else:
+                    face_path = face_files.get(os.path.basename(j).upper())
+                    if face_path is None:
+                        error_popup('Face image ' + os.path.basename(j) + ' not found in ' + face_dir)
+                s1.append(visual.ImageStim(win, image=face_path, size = (233,300), units='pix')) #load images into memory #HS: Edit to make the NimStim images the same size as the other stimuli
             else: 
                 s1.append(visual.ImageStim(win, image=os.path.join(directory, j), units='pix')) #load images into memory #HS: Leave other stimuli as their original size
         stimuli.append(s1)

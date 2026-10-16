@@ -1,1 +1,8 @@
 .DS_Store
+# NimStim faces are licensed (Tottenham lab): never commit them.
+# The task loads them from face_dir in Default.params.
+NimStim/
+Hariri/media/[0-9][0-9][FfMm]_*
+Tottenham_et_al_2009/
+.venv/
+__pycache__/

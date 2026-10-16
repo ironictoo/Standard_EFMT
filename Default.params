@@ -18,6 +18,7 @@ instruction_volume 0.2
 allow_instructions_back True
 output_dir '/home/sabarnes/scratch/EMOTION/efmt_output/'
 network_output_dir '/home/sabarnes/scratch/EMOTION/efmt_output/'
+face_dir '/media/network_mriphysics/adina/NimStim/'
 last_subject 'SUBJECT'
 last_admin 'ADMIN'
 redirect_output False

@@ -152,7 +152,7 @@ def run_try():
     
     schedule_file = os.path.join(os.path.dirname(__file__), g.run_params['run'])
     #param_file = os.path.join(os.path.dirname(__file__),'T1000_FC_Schedule' + str(g.run_params['run']) + '.csv')
-    trial_types,images,durations,correct_responses = StimToolLib.read_trial_structure(schedule_file, g.win, g.msg)
+    trial_types,images,durations,correct_responses = StimToolLib.read_trial_structure(schedule_file, g.win, g.msg, g.session_params.get('face_dir'))
     #pull out the relevent list parts (due to the flexibility to have multiple values in most of the input columns)
     top_images = images[0]
     left_images = images[1]
