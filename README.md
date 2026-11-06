@@ -99,8 +99,10 @@ Enter the Subject ID and your initials (Administrator ID) in the dialog. The
 scan also asks for an exam number (any text; it is saved with the data).
 `practice` and `scan` run the versions for a button box held in the **right**
 hand; for the left hand, give the order file instead, e.g.
-`StimTool.py HARIRI_ScanSession_LEFT_ButtonBox_T1.TL`. Left and right differ
-only in instruction slide 2 (a picture of the button box in that hand).
+`StimTool.py HARIRI_ScanSession_LEFT_ButtonBox_T1.TL`. Upstream, left and right
+differ only in instruction slide 2 (a picture of the button box in that hand);
+here both use the same slide with our 2-button box (see below), so they run
+the same.
 Without an argument, `StimTool.py` asks for the experiment order; don't pick
 `free`, which skips the session settings.
 
@@ -149,6 +151,12 @@ for more on reading the output.
 - Keys: button box `a`/`b`/`c`, trigger `t` (both settings). The
   experimenter's "previous slide" key is Backspace (it was `a`, now button 1).
   The "press `z` when the scanner is ready" step is optional and off.
+- Instruction slide 2 (practice and scan) shows our button box (blue = left,
+  yellow = right; photo `Hariri/media/instructions/llu_button.png`) instead
+  of the stock 4-button box: `HARI_P_2_LLU.PNG` and `HARI_S_2_LLU.PNG`, used by
+  all four `HARI_instruct_schedule*.csv`. `tools/button_slides.py` remakes
+  them from the stock right-hand slides and the photo (for a new photo, update
+  the button positions at the top of the script).
 - `screens` setting for one (cloned) display; `StimTool.py practice|scan`
   shortcuts; `~` allowed in folder paths.
 - Fixes: the practice instructions crashed looking for a sound file named
