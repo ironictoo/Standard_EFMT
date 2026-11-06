@@ -61,7 +61,9 @@ def general_setup(g):
     #initialize the window, main text stim, and clock
     thisMon = monitors.Monitor('', width=g.session_params['monitor_width_cm'], distance=g.session_params['monitor_distance_cm'])
     thisMon.setSizePix([g.session_params['monitor_width_pix'], g.session_params['monitor_height_pix']])
-    g.win = visual.Window(fullscr=False, screen=1,color=(1,1,1), waitBlanking=True, colorSpace='rgb',winType='pyglet', allowGUI=False, size=(g.session_params['screen_x'], g.session_params['screen_y']), monitor=thisMon) #HS made screen white: originally (-1,-1,-1)
+    #screens 1: one display, or the laptop cloned to the scanner screen (full screen on screen 0); screens 2: task on screen 'screen'
+    single_screen = g.session_params.get('screens', 2) == 1
+    g.win = visual.Window(fullscr=single_screen, screen=0 if single_screen else g.session_params.get('screen', 1),color=(1,1,1), waitBlanking=True, colorSpace='rgb',winType='pyglet', allowGUI=False, size=(g.session_params['screen_x'], g.session_params['screen_y']), monitor=thisMon) #HS made screen white: originally (-1,-1,-1)
     g.msg = visual.TextStim(g.win,text="",units='pix',pos=[0,0],color=[-1,-1,-1],height=30,wrapWidth=int(1600))#HS made text black: originally (1,1,1)
     g.mouse = event.Mouse(visible=False) #hide the mouse--prevents loss of focus, also leave the mouse object in g so that it can be shown if the task requires it
     core.wait(1)
@@ -198,7 +200,7 @@ def check_for_esc():
     if event.getKeys(["escape"]):
         raise QuitException()
         
-def wait_scan_start(win):
+def wait_scan_start(win, trigger='t', confirm_ready=False):
     #HS: edit to show 'Loading..." to reduce confusion of partiicpants. Experimenters must know to press 'z' after the scanner is prepped, then wait for a 't' (or press on keybaord for manual testing) to start the task
     #ORIGINALLY: show "In Preparation" in msg in win, wait for a 'z' after the scanner is prepped, then wait for a 't' to start the task
     msg = visual.TextStim(win,text="",units='pix',pos=[0,0],color=[win.color[0] * -1, win.color[1] * -1, win.color[2] * -1] ,height=30,wrapWidth=int(1600)) #text color should be opposite of window color
@@ -206,12 +208,13 @@ def wait_scan_start(win):
     msg2 = visual.TextStim(win,text="",units='pix',pos=[0,-200],color=[win.color[0] * -1, win.color[1] * -1, win.color[2] * -1] ,height=20,wrapWidth=int(1600)) 
     #msg2.setText("(Press z after scanner prep)") #HS: Removed text to reduce confusion for participants - can turn it back on for testing
     msg2.setText("") 
-    msg.draw()
-    msg2.draw()
-    win.flip()
-    k = event.waitKeys(keyList = ['z', 'escape'])
-    if k[0] == 'escape':
-        raise QuitException()
+    if confirm_ready: #optional experimenter step: 'z' once the scanner is ready (a trigger before 'z' is ignored)
+        msg.draw()
+        msg2.draw()
+        win.flip()
+        k = event.waitKeys(keyList = ['z', 'escape'])
+        if k[0] == 'escape':
+            raise QuitException()
     #Wait for scanner pulse
     msg.setText('Task will begin soon')
     #msg2.setText('(Waiting for a t to start)') #HS: Removed text to reduce confusion for participants - can turn it back on for testing
@@ -219,7 +222,7 @@ def wait_scan_start(win):
     msg.draw()
     msg2.draw()
     win.flip()
-    k = event.waitKeys(keyList = ['t', 'escape'])
+    k = event.waitKeys(keyList = [trigger, 'escape'])
     if k[0] == 'escape':
         raise QuitException()
    
@@ -291,14 +294,14 @@ def do_one_slide(slide, directory, g):
     if s:
         s.play()
         advance_time = advance_time - s.getDuration() #since we're waiting for the duration of s, decrease advance_time by that amount--allows for e.g. advance_time of 5s with a sound of 3s->wait 2s after the sound ends
-        k = event.waitKeys(keyList = ['z', 'a', 'escape'], maxWait=s.getDuration()) #force the subject to listen to all of the instructions--allow 'z' to skip them or 'a' to force back
+        k = event.waitKeys(keyList = ['z', 'backspace', 'escape'], maxWait=s.getDuration()) #force the subject to listen to all of the instructions--allow 'z' to skip them or 'backspace' to force back (was 'a', now a button box key)
     if not k: #if skipped instructions, don't wait to advance afterword
         if g.session_params['allow_instructions_back']: #only allow back if it's specified in the session parameters
-            kl = [g.session_params['left'], g.session_params['right'], 'escape', 'z', 'a']
+            kl = [g.session_params['left'], g.session_params['right'], 'escape', 'z', 'backspace']
         else:
-            kl = [g.session_params['right'], 'escape', 'z', 'a']
+            kl = [g.session_params['right'], 'escape', 'z', 'backspace']
         if wait_z: #only advance for a 'z'
-            kl = ['z', 'a']
+            kl = ['z', 'backspace']
         k = event.waitKeys(keyList = kl, maxWait=advance_time)
     if s: #stop the sound if it's still playing
         s.stop()
@@ -306,7 +309,7 @@ def do_one_slide(slide, directory, g):
         return 1
     if k[0] == 'z':
         retval = 1
-    if k[0] == 'a':
+    if k[0] == 'backspace':
         retval = -1
     if k[0] == g.session_params['right']:
         retval = 1

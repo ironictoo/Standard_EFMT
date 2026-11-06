@@ -1,12 +1,12 @@
-left '1'
-right '2'
-select '3'
+left 'a' #button 1, index finger
+right 'b' #button 2, middle finger
+select 'c' #button 3 (logged only)
 record_video False
 signal_parallel False
 auto_advance True
 screen_x 1920
 screen_y 1080
-output_dir '/home/sabarnes/scratch/EMOTION/efmt_output/'
+output_dir '~/fmri_data/Standard_EFMT/'
 instruction_volume 0.4
 redirect_output True
 session_id T1

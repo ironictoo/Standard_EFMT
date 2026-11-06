@@ -1,13 +1,13 @@
-left '1' #y buttonbox --> number for keyboard testing
-right '2' #b buttonbox --> number for keyboard testing
-select '3' #g buttonbox --> number for keyboard testing
+left 'a' #button 1, index finger
+right 'b' #button 2, middle finger
+select 'c' #button 3 (logged only)
 scan True
 record_video False
 signal_parallel False
 auto_advance True
 screen_x 1920
 screen_y 1080
-output_dir '/home/sabarnes/scratch/EMOTION/efmt_output/'
+output_dir '~/fmri_data/Standard_EFMT/'
 allow_instructions_back False
 instruction_volume 0.5
 redirect_output True

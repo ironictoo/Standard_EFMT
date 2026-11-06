@@ -75,12 +75,20 @@ if __name__ == '__main__':
     modules.sort() #sorted alphabetically so tasks are easier to find
 
 
+    #optional argument: 'practice', 'scan' (button box in the right hand) or a .TL file, to run only that order
+    shortcuts = {'practice': 'HARIRI_Practice_RIGHT_ButtonBox_T1.TL', 'scan': 'HARIRI_ScanSession_RIGHT_ButtonBox_T1.TL'}
+    preset = shortcuts.get(sys.argv[1], sys.argv[1]) if len(sys.argv) > 1 else None
+    if preset and not os.path.isfile(preset):
+        sys.exit('Unknown experiment order: ' + preset + ' (use practice, scan, or a .TL file)')
+
     myDlg = gui.Dlg(title="StimTool")
     myDlg.addField('Subject ID:', StimToolLib.get_var_from_file('Default.params', 'last_subject')) #subject ID
     myDlg.addField('Administrator ID:', StimToolLib.get_var_from_file('Default.params', 'last_admin')) #name of the person administering the session
     task_lists = [f for f in os.listdir('.') if f.endswith('.TL')] #get a list of all ".TL" files (tasklists), which have a list of all tasks to be run in a session
     task_lists.sort()
     task_lists.insert(0, 'free')
+    if preset:
+        task_lists = [preset]
     myDlg.addField('Experiment Order:', choices=task_lists) #text file with a list of which tasks to run.  Some tasks may be repeated.
     myDlg.show()  # show dialog and wait for OK or Cancel
     if myDlg.OK:  # then the user pressed OK
@@ -114,6 +122,9 @@ if __name__ == '__main__':
         free = False
         param_file = thisInfo[2][0:-3] + '.params' #every .TL file can have a .params file associated with it to specify running parameters
         session_params = StimToolLib.get_var_dict_from_file(param_file, session_params) #overwrite any parameters defined in the session specific file (e.g. BehavioralSession.params)
+    for k in ['output_dir', 'network_output_dir', 'face_dir']: #allow ~ (home folder) in paths
+        if isinstance(session_params.get(k), str):
+            session_params[k] = os.path.expanduser(session_params[k])
     #redirect stdout and stderr to a file
     if session_params['redirect_output']:
         StimToolLib.redirect_output(session_params)

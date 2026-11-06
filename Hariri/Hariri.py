@@ -189,7 +189,7 @@ def run_try():
 
     g.trial = 0
     if g.session_params['scan']:
-        StimToolLib.wait_scan_start(g.win)
+        StimToolLib.wait_scan_start(g.win, g.session_params.get('trigger', 't'), g.session_params.get('confirm_scanner_ready', False))
     else:
         StimToolLib.wait_start(g.win)
     instruct_end_time = g.clock.getTime()
