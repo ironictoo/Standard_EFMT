@@ -1,0 +1,24 @@
+# Python environment for the Standard EFMT, managed by uv (see README.md).
+# install.sh / install.ps1 run `uv sync --locked`, which installs exactly the
+# versions in uv.lock into .venv. To change a version: edit here or run
+# `uv lock --upgrade-package <name>`, test, and commit uv.lock.
+[project]
+name = "standard-efmt"
+version = "0.1.0"
+requires-python = "==3.10.*"
+dependencies = ["psychopy==2026.2.4"]
+
+[tool.uv]
+package = false  # a task folder, not an installable package
+python-preference = "only-managed"  # the same uv-provided Python on every computer
+required-version = ">=0.12"
+# uv lock fails unless every package has a prebuilt wheel (or builds from
+# source) for each of these, so a platform problem shows up when locking.
+# Intel Macs are not supported (opencv-python and others have no wheels).
+# uv lock does not check OS versions: after changing uv.lock, run
+# tools/check_wheels.sh (Ubuntu 22.04, macOS 14, Windows).
+required-environments = [
+    "sys_platform == 'linux' and platform_machine == 'x86_64'",
+    "sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "sys_platform == 'win32' and platform_machine == 'AMD64'",
+]

@@ -45,15 +45,52 @@ schedule files have 5, and their total of 297 s is what runs.)
 
 ## Install
 
-Tested on Ubuntu with Python 3.10 and PsychoPy 2026.2.4. Requires
-[uv](https://docs.astral.sh/uv/).
+The task runs on Python 3.10 with PsychoPy 2026.2.4. The environment is
+managed by [uv](https://docs.astral.sh/uv/): `pyproject.toml` lists what the
+task needs, and `uv.lock` pins the exact version of every package, so every
+computer runs the same tested set. The install scripts install uv if it is
+missing (in `~/.local/bin`, no admin rights), run `uv sync --locked` (which
+downloads uv's Python 3.10 and puts the locked packages into `.venv`), check
+for the faces, and add launchers. Installing needs internet access; running
+the task does not.
+
+Supported: Linux x86-64 (tested on Ubuntu; the scanner laptop runs 22.04),
+Windows x64, and Apple Silicon Macs with macOS 14 or newer. Intel Macs are not
+supported (several packages have no builds for them). The macOS and Windows
+parts of the scripts are untested.
+
+**Linux / macOS:**
 
 ```bash
 git clone -b linux https://github.com/ironictoo/Standard_EFMT.git
 cd Standard_EFMT
-uv venv --python 3.10 .venv
-uv pip install --python .venv/bin/python -r requirements-linux.txt
+./install.sh
 ```
+
+- **Linux:** adds **EFMT Practice** and **EFMT Scan** to the app menu and the
+  desktop (`.desktop` files that call `run.sh`). If libraries that the Qt
+  dialogs need are missing (Ubuntu 22.04 lacks `libxcb-cursor0`), it asks
+  before installing them with `sudo apt-get` (your password); answer no to
+  get the command for later.
+- **macOS:** adds `EFMT Practice.command` and `EFMT Scan.command` to the desktop.
+- `./install.sh --no-launchers` skips the launchers.
+
+**Windows** (PowerShell, in the cloned folder):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File install.ps1
+```
+
+This adds **EFMT Practice** and **EFMT Scan** shortcuts to the desktop.
+
+**Updating:** `git pull`, then rerun the install script; it brings `.venv` in
+line with the new `uv.lock`. Without the script: `uv sync --locked`.
+
+**Changing package versions** (developers): edit `pyproject.toml` or run
+`uv lock --upgrade-package <name>`, then run `tools/check_wheels.sh`. It checks
+that every locked package has a ready-made build for Ubuntu 22.04, macOS 14
+and Windows (`uv lock` itself does not check OS versions). Test the task, and
+commit `pyproject.toml` and `uv.lock` together.
 
 **Faces.** The NimStim images are licensed, so they are not in this repo.
 Request them from the Tottenham lab (https://danlab.psychology.columbia.edu/content/nimstim),
@@ -83,17 +120,20 @@ Copy data from `output_dir` to the network drive after each session.
 
 ## Running
 
-Training (before scanning, at the laptop):
+Use the **EFMT Practice** launcher for training (before scanning, at the
+laptop), and **EFMT Scan** in the scanner. Or from the folder:
 
 ```bash
-.venv/bin/python StimTool.py practice
+./run.sh practice
+./run.sh scan
 ```
 
-In the scanner:
-
-```bash
-.venv/bin/python StimTool.py scan
-```
+`run.sh` runs `.venv/bin/python StimTool.py` with the same arguments (on
+Windows, run `.venv\Scripts\python.exe StimTool.py practice`). Started from
+a launcher, the console output goes to
+`~/.local/state/standard-efmt/launcher.log`, and if the task stops with an
+error a dialog says so; run `./run.sh` in a terminal to see the output
+directly.
 
 Enter the Subject ID and your initials (Administrator ID) in the dialog. The
 scan also asks for an exam number (any text; it is saved with the data).
@@ -157,6 +197,9 @@ for more on reading the output.
   all four `HARI_instruct_schedule*.csv`. `tools/button_slides.py` remakes
   them from the stock right-hand slides and the photo (for a new photo, update
   the button positions at the top of the script).
+- Python environment managed by uv with a lock file (`pyproject.toml`,
+  `uv.lock`); `install.sh` / `install.ps1` installers with launchers, and
+  `run.sh`.
 - `screens` setting for one (cloned) display; `StimTool.py practice|scan`
   shortcuts; `~` allowed in folder paths.
 - Fixes: the practice instructions crashed looking for a sound file named

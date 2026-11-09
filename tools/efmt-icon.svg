@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Launcher icon: three images in a triangle, the chosen one framed -->
+  <rect x="4" y="4" width="120" height="120" rx="22" fill="#2f5597"/>
+  <ellipse cx="64" cy="40" rx="17" ry="21" fill="#ffffff"/>
+  <ellipse cx="36" cy="86" rx="17" ry="21" fill="#ffffff"/>
+  <ellipse cx="92" cy="86" rx="17" ry="21" fill="#ffffff"/>
+  <rect x="68" y="58" width="48" height="56" rx="4" fill="none" stroke="#ffc000" stroke-width="6"/>
+</svg>
