@@ -8,10 +8,12 @@ import time, numpy, random, datetime, sys, os, copy, csv, ast, StimToolLib, thre
 
 
 import Hariri.Hariri
+import RestingState.RestingState
 
 
 mod_mapping = {
-    'Hariri': Hariri.Hariri
+    'Hariri': Hariri.Hariri,
+    'RestingState': RestingState.RestingState #fixation cross for resting state scans, shown until escape is pressed
     }
 
 def run_task_until_success(task, session_params):
@@ -70,20 +72,28 @@ if __name__ == '__main__':
     modules.sort() #sorted alphabetically so tasks are easier to find
 
 
-    myDlg = gui.Dlg(title="StimTool")
-    myDlg.addField('Subject ID:', StimToolLib.get_var_from_file('Default.params', 'last_subject')) #subject ID
-    myDlg.addField('Administrator ID:', StimToolLib.get_var_from_file('Default.params', 'last_admin')) #name of the person administering the session
+    #A task list can be given on the command line (e.g. "python StimTool.py RESTING_STATE_FixationCross.TL") to start it
+    #straight away without the StimTool dialog, using the last subject and administrator IDs. Used by Run_RestingState.bat.
     task_lists = [f for f in os.listdir('.') if f.endswith('.TL')] #get a list of all ".TL" files (tasklists), which have a list of all tasks to be run in a session
     task_lists.sort()
-    task_lists.insert(0, 'free')
-    myDlg.addField('Experiment Order:', choices=task_lists) #text file with a list of which tasks to run.  Some tasks may be repeated.
-    myDlg.show()  # show dialog and wait for OK or Cancel
-    if myDlg.OK:  # then the user pressed OK
-        thisInfo = myDlg.data
-        print(thisInfo)
+    if len(sys.argv) > 1:
+        if sys.argv[1] not in task_lists:
+            print('Task list not found in the StimTool folder: ' + sys.argv[1])
+            core.quit()
+        thisInfo = [str(StimToolLib.get_var_from_file('Default.params', 'last_subject')), str(StimToolLib.get_var_from_file('Default.params', 'last_admin')), sys.argv[1]]
     else:
-        print('QUIT!')
-        core.quit()#the user hit cancel so exit 
+        myDlg = gui.Dlg(title="StimTool")
+        myDlg.addField('Subject ID:', StimToolLib.get_var_from_file('Default.params', 'last_subject')) #subject ID
+        myDlg.addField('Administrator ID:', StimToolLib.get_var_from_file('Default.params', 'last_admin')) #name of the person administering the session
+        task_lists.insert(0, 'free')
+        myDlg.addField('Experiment Order:', choices=task_lists) #text file with a list of which tasks to run.  Some tasks may be repeated.
+        myDlg.show()  # show dialog and wait for OK or Cancel
+        if myDlg.OK:  # then the user pressed OK
+            thisInfo = myDlg.data
+            print(thisInfo)
+        else:
+            print('QUIT!')
+            core.quit()#the user hit cancel so exit 
     sid = thisInfo[0].replace('\'', '.')
     raID = thisInfo[1].replace('\'', '.') #prevent problems with storing/reading strings that have single quotes in them
     sid = sid.replace(' ', '_')

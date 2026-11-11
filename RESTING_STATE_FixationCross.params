@@ -1,0 +1,6 @@
+scan False
+record_video False
+signal_parallel False
+auto_advance True
+redirect_output False
+session_id T1
