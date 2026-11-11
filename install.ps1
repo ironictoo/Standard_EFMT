@@ -2,7 +2,7 @@
 #   1. uv (installed in ~\.local\bin if missing) puts Python 3.10 and exactly
 #      the package versions in uv.lock into .venv
 #   2. checks for the NimStim faces
-#   3. desktop shortcuts for the practice and scan runs
+#   3. desktop shortcuts for the practice and scan runs and the resting state cross
 # Usage, in PowerShell from this folder:
 #   powershell -ExecutionPolicy Bypass -File install.ps1 [-NoShortcuts]
 # Rerun after `git pull` to update .venv to the new uv.lock; it is safe to rerun.
@@ -53,17 +53,23 @@ if (-not (Test-Path $faceDir)) {
 if (-not $NoShortcuts) {
     $shell = New-Object -ComObject WScript.Shell
     $desktop = [Environment]::GetFolderPath('Desktop')
-    foreach ($run in @(@('practice', 'Practice'), @('scan', 'Scan'))) {
-        $lnk = $shell.CreateShortcut((Join-Path $desktop "EFMT $($run[1]).lnk"))
+    $runs = @(
+        @('practice', 'EFMT Practice', 'Standard emotional face matching task: practice run'),
+        @('scan', 'EFMT Scan', 'Standard emotional face matching task: scan run'),
+        @('rest', 'Resting State Cross', 'Fixation cross for resting state scans, shown until Escape is pressed')
+    )
+    foreach ($run in $runs) {
+        $lnk = $shell.CreateShortcut((Join-Path $desktop "$($run[1]).lnk"))
         $lnk.TargetPath = $VenvPy
         $lnk.Arguments = "StimTool.py $($run[0])"
         $lnk.WorkingDirectory = $Here
-        $lnk.Description = "Standard emotional face matching task: $($run[0]) run"
+        $lnk.Description = $run[2]
         $lnk.Save()
     }
-    Say "Added 'EFMT Practice' and 'EFMT Scan' shortcuts to the desktop ($desktop)"
+    Say "Added 'EFMT Practice', 'EFMT Scan' and 'Resting State Cross' shortcuts to the desktop ($desktop)"
 }
 
 Say ("Done. Start the task with the shortcuts, or from this folder:`n" +
      "    .venv\Scripts\python.exe StimTool.py practice   (training, before scanning)`n" +
-     "    .venv\Scripts\python.exe StimTool.py scan       (in the scanner; waits for the trigger)")
+     "    .venv\Scripts\python.exe StimTool.py scan       (in the scanner; waits for the trigger)`n" +
+     "    .venv\Scripts\python.exe StimTool.py rest       (resting state: fixation cross until Escape)")

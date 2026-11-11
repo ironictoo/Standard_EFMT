@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Start the Standard EFMT with this folder's .venv (made by install.sh).
-# Usage: ./run.sh practice | scan | <order .TL file> | (nothing: choose in a dialog)
+# Usage: ./run.sh practice | scan | rest | <order .TL file> | (nothing: choose in a dialog)
 # The desktop launchers call this. Started outside a terminal, the output goes
 # to a log file and an error opens a dialog.
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

@@ -4,8 +4,8 @@
 #      the package versions in uv.lock into .venv
 #   2. checks for system libraries (Linux: offers to install missing ones with
 #      sudo apt) and the NimStim faces
-#   3. launchers for the practice and scan runs (Linux: app menu and desktop;
-#      macOS: .command files on the desktop)
+#   3. launchers for the practice and scan runs and the resting state cross
+#      (Linux: app menu and desktop; macOS: .command files on the desktop)
 # Usage: ./install.sh [--no-launchers]
 # Rerun after `git pull` to update .venv to the new uv.lock; it is safe to rerun.
 set -euo pipefail
@@ -18,7 +18,13 @@ launchers=1
 say() { printf '\n==> %s\n' "$*"; }
 warn() { printf '\nWARNING: %s\n' "$*" >&2; }
 die() { printf '\nERROR: %s\n' "$*" >&2; exit 1; }
-title() { case "$1" in practice) echo Practice ;; scan) echo Scan ;; esac; }
+title() { case "$1" in practice) echo 'EFMT Practice' ;; scan) echo 'EFMT Scan' ;; rest) echo 'Resting State Cross' ;; esac; }
+comment() {
+    case "$1" in
+    rest) echo 'Fixation cross for resting state scans, shown until Escape is pressed' ;;
+    *) echo "Standard emotional face matching task: $1 run" ;;
+    esac
+}
 ask() {  # yes/no question; no if there is no terminal to answer from
     local reply=""
     printf '\n%s [y/N] ' "$1"
@@ -95,14 +101,14 @@ if [ "$launchers" = 1 ]; then
         apps="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
         desktop="$(xdg-user-dir DESKTOP 2>/dev/null || echo "$HOME/Desktop")"
         mkdir -p "$apps"
-        for run in practice scan; do
-            name="EFMT $(title "$run")"
+        for run in practice scan rest; do
+            name="$(title "$run")"
             file="$apps/standard-efmt-$run.desktop"
             cat >"$file" <<EOF
 [Desktop Entry]
 Type=Application
 Name=$name
-Comment=Standard emotional face matching task: $run run
+Comment=$(comment "$run")
 Exec="$here/run.sh" $run
 Path=$here
 Icon=$here/tools/efmt-icon.svg
@@ -116,20 +122,21 @@ EOF
                 gio set "$desktop/standard-efmt-$run.desktop" metadata::trusted true 2>/dev/null || true
             fi
         done
-        say "Added 'EFMT Practice' and 'EFMT Scan' to the app menu ($apps)"
+        say "Added 'EFMT Practice', 'EFMT Scan' and 'Resting State Cross' to the app menu ($apps)"
         [ -d "$desktop" ] && [ "$desktop" != "$HOME" ] && echo "    and the desktop ($desktop)"
         ;;
     Darwin)
-        for run in practice scan; do
-            file="$HOME/Desktop/EFMT $(title "$run").command"
+        for run in practice scan rest; do
+            file="$HOME/Desktop/$(title "$run").command"
             printf '#!/bin/bash\nexec "%s/run.sh" %s\n' "$here" "$run" >"$file"
             chmod +x "$file"
         done
-        say "Added 'EFMT Practice.command' and 'EFMT Scan.command' to the desktop"
+        say "Added 'EFMT Practice.command', 'EFMT Scan.command' and 'Resting State Cross.command' to the desktop"
         ;;
     esac
 fi
 
 say "Done. Start the task with the launchers, or from this folder:
     ./run.sh practice     (training, before scanning)
-    ./run.sh scan         (in the scanner; waits for the trigger)"
+    ./run.sh scan         (in the scanner; waits for the trigger)
+    ./run.sh rest         (resting state: fixation cross until Escape)"

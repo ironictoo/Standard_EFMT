@@ -67,12 +67,13 @@ cd Standard_EFMT
 ./install.sh
 ```
 
-- **Linux:** adds **EFMT Practice** and **EFMT Scan** to the app menu and the
-  desktop (`.desktop` files that call `run.sh`). If libraries that the Qt
+- **Linux:** adds **EFMT Practice**, **EFMT Scan** and **Resting State Cross**
+  to the app menu and the desktop (`.desktop` files that call `run.sh`). If libraries that the Qt
   dialogs need are missing (Ubuntu 22.04 lacks `libxcb-cursor0`), it asks
   before installing them with `sudo apt-get` (your password); answer no to
   get the command for later.
-- **macOS:** adds `EFMT Practice.command` and `EFMT Scan.command` to the desktop.
+- **macOS:** adds `EFMT Practice.command`, `EFMT Scan.command` and
+  `Resting State Cross.command` to the desktop.
 - `./install.sh --no-launchers` skips the launchers.
 
 **Windows** (PowerShell, in the cloned folder):
@@ -81,10 +82,12 @@ cd Standard_EFMT
 powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
-This adds **EFMT Practice** and **EFMT Scan** shortcuts to the desktop.
+This adds **EFMT Practice**, **EFMT Scan** and **Resting State Cross**
+shortcuts to the desktop.
 
 **Updating:** `git pull`, then rerun the install script; it brings `.venv` in
-line with the new `uv.lock`. Without the script: `uv sync --locked`.
+line with the new `uv.lock` and adds any new launchers (such as **Resting
+State Cross**). Without the script: `uv sync --locked`.
 
 **Changing package versions** (developers): edit `pyproject.toml` or run
 `uv lock --upgrade-package <name>`, then run `tools/check_wheels.sh`. It checks
@@ -164,6 +167,35 @@ Only the keys above work (for example, not the numeric keypad). If you cancel
 after Escape, StimTool switches to "free mode"; quit and restart it rather
 than picking `Hariri` there (it fails with `Hariri/P` not found).
 
+## Resting state fixation cross
+
+For resting state fMRI, StimTool can show a fixed black cross in the centre of
+a white screen. It stays up until the proctor presses **Escape**: there are no
+instructions, no wait for the scanner trigger and no time limit.
+
+1. Start it with the **Resting State Cross** launcher, or from the folder:
+
+   ```bash
+   ./run.sh rest
+   ```
+
+   (On Windows: the **Resting State Cross** shortcut, or
+   `.venv\Scripts\python.exe StimTool.py rest`.)
+2. Enter the Subject ID and your initials in the dialog and click OK. The
+   cross appears about a second later.
+3. Start the resting state sequence on the scanner.
+4. When the scan has finished, press **Escape** on the laptop keyboard. The
+   cross closes and StimTool quits.
+
+Only Escape ends it; button box presses and scanner triggers are ignored. The
+cross uses the same screen settings as the EFMT (`screens`, `screen_x`,
+`screen_y` in `Default.params`; `RESTING_STATE_FixationCross.params` overrides
+some of them). Its size is set by `CROSS_SIZE` and `CROSS_THICKNESS` (pixels)
+at the top of `RestingState/RestingState.py`.
+
+If you don't see the launcher, rerun `./install.sh` (or `install.ps1`): the
+installers add it along with the EFMT launchers.
+
 ## Output
 
 In `output_dir`, named from the Subject ID:
@@ -176,6 +208,9 @@ In `output_dir`, named from the Subject ID:
   response. Times are in seconds from the start of the instructions; the
   task (trigger) onset is event 2.
 - `<SID>-T1-SCAN-RX-EXAM.txt`: the exam number (scan only).
+- `<SID>-T1-REST-R1-_BEH.csv` (resting state cross): `event_code` 1 is when
+  the cross appeared and 2 when Escape was pressed, with the time the cross
+  was shown (seconds) in `response_time`.
 - `<SID>_<date>.txt`: console log, for troubleshooting.
 
 A second run with the same Subject ID gets `-1`, `-2`, … added instead of
@@ -200,8 +235,10 @@ for more on reading the output.
 - Python environment managed by uv with a lock file (`pyproject.toml`,
   `uv.lock`); `install.sh` / `install.ps1` installers with launchers, and
   `run.sh`.
-- `screens` setting for one (cloned) display; `StimTool.py practice|scan`
+- `screens` setting for one (cloned) display; `StimTool.py practice|scan|rest`
   shortcuts; `~` allowed in folder paths.
+- Resting state fixation cross (`RestingState/`, `StimTool.py rest`), with its
+  own launcher.
 - Fixes: the practice instructions crashed looking for a sound file named
   `' None'`; PsychoPy colour-space warning when setting the background.
 

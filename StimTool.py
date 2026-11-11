@@ -13,10 +13,12 @@ import time, numpy, random, datetime, sys, os, copy, csv, ast, StimToolLib, thre
 
 
 import Hariri.Hariri
+import RestingState.RestingState
 
 
 mod_mapping = {
-    'Hariri': Hariri.Hariri
+    'Hariri': Hariri.Hariri,
+    'RestingState': RestingState.RestingState #fixation cross for resting state scans, shown until escape is pressed
     }
 
 def run_task_until_success(task, session_params):
@@ -75,11 +77,11 @@ if __name__ == '__main__':
     modules.sort() #sorted alphabetically so tasks are easier to find
 
 
-    #optional argument: 'practice', 'scan' (button box in the right hand) or a .TL file, to run only that order
-    shortcuts = {'practice': 'HARIRI_Practice_RIGHT_ButtonBox_T1.TL', 'scan': 'HARIRI_ScanSession_RIGHT_ButtonBox_T1.TL'}
+    #optional argument: 'practice', 'scan' (button box in the right hand), 'rest' (resting state fixation cross) or a .TL file, to run only that order
+    shortcuts = {'practice': 'HARIRI_Practice_RIGHT_ButtonBox_T1.TL', 'scan': 'HARIRI_ScanSession_RIGHT_ButtonBox_T1.TL', 'rest': 'RESTING_STATE_FixationCross.TL'}
     preset = shortcuts.get(sys.argv[1], sys.argv[1]) if len(sys.argv) > 1 else None
     if preset and not os.path.isfile(preset):
-        sys.exit('Unknown experiment order: ' + preset + ' (use practice, scan, or a .TL file)')
+        sys.exit('Unknown experiment order: ' + preset + ' (use practice, scan, rest, or a .TL file)')
 
     myDlg = gui.Dlg(title="StimTool")
     myDlg.addField('Subject ID:', StimToolLib.get_var_from_file('Default.params', 'last_subject')) #subject ID
